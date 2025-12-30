@@ -7,6 +7,7 @@ import Recommendations from './components/Recommendations';
 import AdminPanel from './components/AdminPanel';
 import { StudentData } from './types';
 import LandingPage from './components/LandingPage'; // Import Landing Page
+import ChatBot from './components/ChatBot';
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<StudentData | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -131,6 +132,11 @@ const App: React.FC = () => {
       <div className="flex h-screen bg-slate-50">
         <Sidebar isAdmin={isAdmin} onLogout={handleLogout} />
         <main className="flex-1 overflow-y-auto p-8">
+
+           {/* --- PERBAIKAN DI SINI --- */}
+           {/* ChatBot diletakkan DI LUAR <Routes>, tapi masih di dalam <main> */}
+           {/* Logika: Muncul jika BUKAN admin dan User ADA */}
+           {!isAdmin && currentUser && <ChatBot user={currentUser} />}
            <Routes>
              {isAdmin ? (
                <>
@@ -139,6 +145,7 @@ const App: React.FC = () => {
                </>
              ) : (
                <>
+                 {/* Di dalam sini HANYA BOLEH ada Route */}
                  <Route path="/" element={<Dashboard user={currentUser!} />} />
                  <Route path="/profile" element={<Profile user={currentUser!} onUpdateUser={handleUpdateUser} />} />
                  <Route path="/recommendations" element={<Recommendations user={currentUser!} />} />

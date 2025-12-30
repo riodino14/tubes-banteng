@@ -12,6 +12,16 @@ import numpy as np
 import random
 import re
 from database import Base, engine, SessionLocal, UserDB
+import google.generativeai as genai # LIBRARY BARU
+# ==========================================
+# KONFIGURASI GEMINI AI (PASTE KEY DISINI)
+# ==========================================
+# Ganti teks di bawah dengan API Key 
+genai.configure(api_key="AIzaSyBS4EiKyutrZkF1gkI7zo9DtvGqooujmPU")
+
+# Setup Model
+# Gunakan model 'flash' yang lebih cepat dan stabil untuk Free Tier
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 # 1. SETUP
 app = FastAPI(title="EduPulse API", version="13.0 - Smart Context")
@@ -280,6 +290,125 @@ class RecommendationRequest(BaseModel):
     user_id: int; learning_style: str; interest: str
 
 # --- SUPER AI V3 (WITH SCORES IN TIPS) ---
+# @app.post("/api/recommendation")
+# def get_ai_recommendation(req: RecommendationRequest):
+#     # 1. Identifikasi User
+#     student = user_df[user_df["userid"] == req.user_id]
+#     if student.empty: raise HTTPException(status_code=404, detail="User Not Found")
+    
+#     row = student.iloc[0]
+#     cluster_id = int(row["cluster"])
+#     cluster_type = cluster_labels.get(cluster_id, "Unknown")
+#     engagement = int(row["engagement_score"])
+    
+#     # 2. LOGIC JADWAL BELAJAR REAL (MODE)
+#     optimal_time = "Pagi Hari (08:00 - 10:00)"
+#     user_logs = logs_df[logs_df['userid'] == req.user_id]
+    
+#     if not user_logs.empty:
+#         hours = user_logs['hour'].dropna().astype(int)
+#         if len(hours) > 0:
+#             most_common_hour = hours.mode()[0]
+#             if 5 <= most_common_hour < 12: optimal_time = f"Pagi Hari (Sekitar jam {most_common_hour}:00)"
+#             elif 12 <= most_common_hour < 15: optimal_time = f"Siang Hari (Sekitar jam {most_common_hour}:00)"
+#             elif 15 <= most_common_hour < 18: optimal_time = f"Sore Hari (Sekitar jam {most_common_hour}:00)"
+#             else: optimal_time = f"Malam Hari (Sekitar jam {most_common_hour}:00)"
+    
+#     # 3. DETEKSI TOPIK SPESIFIK & SKORNYA
+#     weak_subjects = [] 
+    
+#     student_scores = score_df[score_df["userid"] == req.user_id]
+#     if not student_scores.empty:
+#         # Filter nilai > 0 tapi rendah
+#         valid_scores = student_scores[student_scores['final_quiz_grade'] > 0].copy()
+        
+#         if not valid_scores.empty:
+#             # Urutkan dari terjelek
+#             valid_scores = valid_scores.sort_values('final_quiz_grade').head(2) 
+            
+#             for _, bad_quiz in valid_scores.iterrows():
+#                 c_name = clean_course_name(bad_quiz['coursefullname'])
+#                 raw_topic = extract_topic_from_quiz(bad_quiz['quizname'])
+#                 score = fix_grade_value(bad_quiz['final_quiz_grade'])
+#                 search_query = generate_search_query(c_name, raw_topic)
+                
+#                 weak_subjects.append({
+#                     "course": c_name,
+#                     "topic": raw_topic,
+#                     "score": score,
+#                     "search_query": search_query
+#                 })
+
+#     # Default jika kosong
+#     if not weak_subjects:
+#         weak_subjects.append({"course": "Umum", "topic": "Materi Dasar", "score": 0, "search_query": "Materi Dasar Informatika"})
+
+#     # 4. PEER & MENTOR
+#     peer_list = [f"Mahasiswa {uid}" for uid in user_df[user_df['cluster'] == int(row["cluster"])].sample(min(3, len(user_df)))['userid'].values if uid != req.user_id]
+
+#     mentor_name = "Belum Tersedia"
+#     # Cari mentor berdasarkan matkul terlemah pertama
+#     weakest_course_id = student_scores.sort_values('final_quiz_grade').iloc[0]['courseshortname'] if not student_scores.empty else ""
+    
+#     if weakest_course_id:
+#         potential_mentors = score_df[
+#             (score_df['courseshortname'] == weakest_course_id) & 
+#             (score_df['final_quiz_grade'] > 85)
+#         ]['userid'].unique()
+#         mentor_list = potential_mentors.tolist() 
+#         if len(mentor_list) > 0:
+#             mentor_id = random.choice(mentor_list)
+#             mentor_name = f"Mahasiswa {mentor_id} (Expert)"
+
+#     # 5. MENYUSUN PESAN TIPS DENGAN NILAI (REVISI DI SINI)
+#     # Format: "Topik A (Nilai: 50), Topik B (Nilai: 60)"
+#     weak_list_text = ", ".join([f"{x['topic']} (Nilai: {x['score']})" for x in weak_subjects])
+    
+#     # Format untuk Kotak Merah Fokus Utama
+#     top_weak = weak_subjects[0]
+#     focus_text = f"{top_weak['topic']} (Skor: {top_weak['score']})"
+
+#     # 6. LOGIC CONTENT
+#     style = req.learning_style.title()
+    
+#     materials = []
+#     for item in weak_subjects:
+#         if style == "Visual":
+#             url = f"https://www.youtube.com/results?search_query=Tutorial+{item['search_query'].replace(' ', '+')}"
+#             icon_type = "Video"
+#         elif style == "Auditory":
+#             url = f"https://www.youtube.com/results?search_query=Penjelasan+{item['search_query'].replace(' ', '+')}"
+#             icon_type = "Podcast/Audio"
+#         else: 
+#             url = f"https://www.google.com/search?q=Latihan+Soal+{item['search_query'].replace(' ', '+')}+filetype:pdf"
+#             icon_type = "Latihan/PDF"
+
+#         materials.append({
+#             "title": f"Pelajari: {item['course']} - {item['topic']}",
+#             "type": icon_type,
+#             "url": url
+#         })
+
+#     # Prediksi
+#     current_avg = sum([x['score'] for x in weak_subjects]) / len(weak_subjects)
+#     pred_score = min(100, current_avg + 10)
+
+#     return {
+#         "status": cluster_type,
+#         "match_percentage": 85,
+#         "strategy": "Targeted Improvement",
+#         "materials": materials,
+#         # UPDATE PESAN TIPS BIAR ADA ANGKA
+#         "tips": f"Perhatian! Terdeteksi nilai rendah pada: {weak_list_text}. Segera pelajari materi di bawah.",
+#         # UPDATE FOKUS UTAMA BIAR ADA ANGKA
+#         "weak_subject": focus_text, 
+#         "peer_group": peer_list,
+#         "mentor": mentor_name,
+#         "predicted_score": pred_score,
+#         "optimal_time": optimal_time
+#     }
+
+# --- SUPER AI V3 (REPLACE BAGIAN INI SAJA) ---
 @app.post("/api/recommendation")
 def get_ai_recommendation(req: RecommendationRequest):
     # 1. Identifikasi User
@@ -309,11 +438,10 @@ def get_ai_recommendation(req: RecommendationRequest):
     
     student_scores = score_df[score_df["userid"] == req.user_id]
     if not student_scores.empty:
-        # Filter nilai > 0 tapi rendah
+        # Filter nilai > 0 tapi rendah, ambil 2 terbawah
         valid_scores = student_scores[student_scores['final_quiz_grade'] > 0].copy()
         
         if not valid_scores.empty:
-            # Urutkan dari terjelek
             valid_scores = valid_scores.sort_values('final_quiz_grade').head(2) 
             
             for _, bad_quiz in valid_scores.iterrows():
@@ -334,7 +462,12 @@ def get_ai_recommendation(req: RecommendationRequest):
         weak_subjects.append({"course": "Umum", "topic": "Materi Dasar", "score": 0, "search_query": "Materi Dasar Informatika"})
 
     # 4. PEER & MENTOR
-    peer_list = [f"Mahasiswa {uid}" for uid in user_df[user_df['cluster'] == int(row["cluster"])].sample(min(3, len(user_df)))['userid'].values if uid != req.user_id]
+    peer_list = []
+    cluster_peers = user_df[user_df['cluster'] == int(row["cluster"])]
+    if len(cluster_peers) > 1:
+         # Sample 3 teman, pastikan tidak mengambil diri sendiri
+         samples = cluster_peers[cluster_peers['userid'] != req.user_id].sample(min(3, len(cluster_peers)-1))
+         peer_list = [f"Mahasiswa {uid}" for uid in samples['userid'].values]
 
     mentor_name = "Belum Tersedia"
     # Cari mentor berdasarkan matkul terlemah pertama
@@ -345,12 +478,13 @@ def get_ai_recommendation(req: RecommendationRequest):
             (score_df['courseshortname'] == weakest_course_id) & 
             (score_df['final_quiz_grade'] > 85)
         ]['userid'].unique()
+        
         mentor_list = potential_mentors.tolist() 
         if len(mentor_list) > 0:
             mentor_id = random.choice(mentor_list)
             mentor_name = f"Mahasiswa {mentor_id} (Expert)"
 
-    # 5. MENYUSUN PESAN TIPS DENGAN NILAI (REVISI DI SINI)
+    # 5. MENYUSUN PESAN TIPS DENGAN NILAI (BAGIAN YANG DIUPDATE)
     # Format: "Topik A (Nilai: 50), Topik B (Nilai: 60)"
     weak_list_text = ", ".join([f"{x['topic']} (Nilai: {x['score']})" for x in weak_subjects])
     
@@ -358,7 +492,7 @@ def get_ai_recommendation(req: RecommendationRequest):
     top_weak = weak_subjects[0]
     focus_text = f"{top_weak['topic']} (Skor: {top_weak['score']})"
 
-    # 6. LOGIC CONTENT
+    # 6. LOGIC CONTENT (Generate Link)
     style = req.learning_style.title()
     
     materials = []
@@ -388,16 +522,84 @@ def get_ai_recommendation(req: RecommendationRequest):
         "match_percentage": 85,
         "strategy": "Targeted Improvement",
         "materials": materials,
-        # UPDATE PESAN TIPS BIAR ADA ANGKA
+        # UPDATE: Tips sekarang menampilkan angka nilai
         "tips": f"Perhatian! Terdeteksi nilai rendah pada: {weak_list_text}. Segera pelajari materi di bawah.",
-        # UPDATE FOKUS UTAMA BIAR ADA ANGKA
+        # UPDATE: Fokus utama menampilkan angka nilai
         "weak_subject": focus_text, 
         "peer_group": peer_list,
         "mentor": mentor_name,
-        "predicted_score": pred_score,
+        "predicted_score": round(pred_score, 1),
         "optimal_time": optimal_time
     }
 
+
+
+# Model data untuk request chat
+class ChatRequest(BaseModel):
+    user_id: int
+    message: str
+    learning_style: str
+
+# 🌟 ENDPOINT CHATBOT (INI YANG HILANG) 🌟
+@app.post("/api/chat")
+async def chat_with_ai(req: ChatRequest):
+    # 1. Ambil Konteks Mahasiswa (Biar Chatbot Pinter)
+    student = user_df[user_df["userid"] == req.user_id]
+    context_text = "Data profil tidak ditemukan."
+    
+    if not student.empty:
+        row = student.iloc[0]
+        # Ambil Cluster
+        cluster_type = cluster_labels.get(int(row["cluster"]), "Unknown")
+        avg_score = row['mean_score_pct']
+        
+        # Ambil Kelemahan (Topik nilai terendah)
+        weakest_subject = "Tidak ada"
+        student_scores = score_df[score_df["userid"] == req.user_id]
+        if not student_scores.empty:
+            valid_scores = student_scores[student_scores['final_quiz_grade'] > 0].sort_values('final_quiz_grade')
+            if not valid_scores.empty:
+                worst = valid_scores.iloc[0]
+                c_name = clean_course_name(worst['coursefullname'])
+                t_name = extract_topic_from_quiz(worst['quizname'])
+                s_val = fix_grade_value(worst['final_quiz_grade'])
+                weakest_subject = f"{c_name} (Topik: {t_name}, Nilai: {s_val})"
+
+        context_text = f"""
+        NAMA/ID MAHASISWA: Mahasiswa {req.user_id}
+        STATUS AKADEMIK: {cluster_type}
+        RATA-RATA NILAI: {avg_score}
+        KELEMAHAN UTAMA: {weakest_subject}
+        GAYA BELAJAR: {req.learning_style}
+        """
+
+    # 2. Susun Instruksi untuk AI (System Prompt)
+    system_prompt = f"""
+    Kamu adalah 'EduBot', asisten akademik personal dari aplikasi EduPulse.
+    
+    INFORMASI MAHASISWA LAWAN BICARAMU:
+    {context_text}
+    
+    INSTRUKSI:
+    1. Jawablah pertanyaan mahasiswa dengan ramah dan suportif.
+    2. MANFAATKAN data di atas! Contoh: "Karena kamu tipe Visual, coba cari video tentang..." atau "Nilai Logika kamu rendah, jangan menyerah."
+    3. Jangan menjawab terlalu panjang. Maksimal 3 kalimat paragraf pendek.
+    4. Jika mahasiswa menyapa (Halo/Hi), sapa balik dengan menyebut ID atau Namanya dan singgung status akademiknya sedikit untuk basa-basi motivasi.
+    """
+
+    try:
+        # 3. Kirim ke Google Gemini
+        # Pastikan 'model' sudah didefinisikan di paling atas main.py (model = genai.GenerativeModel('gemini-pro'))
+        chat = model.start_chat(history=[])
+        response = chat.send_message(f"{system_prompt}\n\nUSER BERTANYA: {req.message}")
+        
+        # Kembalikan jawaban teks
+        return {"reply": response.text}
+        
+    except Exception as e:
+        print(f"❌ Error Gemini: {e}")
+        return {"reply": "Maaf, saya sedang pusing (Koneksi ke AI bermasalah). Coba tanya lagi nanti ya!"}
+    
 
 @app.get("/api/admin/summary")
 def get_admin_summary():
@@ -442,4 +644,4 @@ def admin_reset_password(target_user_id: str, db: Session = Depends(get_db)):
     
     return {"message": f"Password mahasiswa {target_user_id} berhasil di-reset ke 'mhs123'"}
 
-# ... (Sisa kode ke bawah)
+
