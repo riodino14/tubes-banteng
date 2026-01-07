@@ -29,7 +29,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ user }) => {
     setLoading(true);
 
     try {
-      const res = await fetch('https://riodino14-edupulse-backend.hf.space//api/chat', {
+      const res = await fetch('https://riodino14-edupulse-backend.hf.space/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

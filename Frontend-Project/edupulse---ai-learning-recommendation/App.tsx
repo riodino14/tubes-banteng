@@ -26,7 +26,7 @@ const App: React.FC = () => {
       formData.append('username', userIdInput);
       formData.append('password', passwordInput);
 
-      const tokenRes = await fetch('https://riodino14-edupulse-backend.hf.space//token', {
+      const tokenRes = await fetch('https://riodino14-edupulse-backend.hf.space/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData
@@ -37,7 +37,7 @@ const App: React.FC = () => {
       }
 
       // 2. Jika Token Oke, Ambil Data Profil
-      const response = await fetch(`https://riodino14-edupulse-backend.hf.space//api/student/${userIdInput}`);
+      const response = await fetch(`https://riodino14-edupulse-backend.hf.space/api/student/${userIdInput}`);
       
       if (!response.ok) {
         throw new Error("Gagal mengambil data profil.");
@@ -74,7 +74,7 @@ const App: React.FC = () => {
         formData.append('username', 'admin');
         formData.append('password', passwordInput);
 
-        const tokenRes = await fetch('https://riodino14-edupulse-backend.hf.space//token', {
+        const tokenRes = await fetch('https://riodino14-edupulse-backend.hf.space/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: formData
