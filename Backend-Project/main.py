@@ -17,11 +17,20 @@ import google.generativeai as genai # LIBRARY BARU
 # KONFIGURASI GEMINI AI (PASTE KEY DISINI)
 # ==========================================
 # Ganti teks di bawah dengan API Key 
-genai.configure(api_key="AIzaSyBS4EiKyutrZkF1gkI7zo9DtvGqooujmPU")
+# ==========================================
+# KONFIGURASI GEMINI AI (LEWAT SECRET)
+# ==========================================
+# Baca dari Environment Variable (Secret di Hugging Face)
+api_key = os.getenv("GEMINI_API_KEY") 
 
-# Setup Model
-# Gunakan model 'flash' yang lebih cepat dan stabil untuk Free Tier
-model = genai.GenerativeModel('gemini-2.5-flash')
+if not api_key:
+    # Fallback untuk di laptop lokal (Ganti dengan key baru Anda jika testing lokal)
+    api_key = "AIzaSy..." 
+
+genai.configure(api_key=api_key)
+
+# Setup Model - GANTI KE 1.5 FLASH (Versi Paling Stabil di Cloud)
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # 1. SETUP
 app = FastAPI(title="EduPulse API", version="13.0 - Smart Context")
