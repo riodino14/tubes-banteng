@@ -42,7 +42,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdateUser }) => {
 
   const handleSaveProfile = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/student/profile', {
+      const res = await fetch('https://riodino14-edupulse-backend.hf.space//api/student/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -73,7 +73,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdateUser }) => {
     }
     
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/auth/change-password', {
+      const res = await fetch('https://riodino14-edupulse-backend.hf.space//api/auth/change-password', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

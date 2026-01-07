@@ -32,7 +32,7 @@ const Recommendations: React.FC<RecProps> = ({ user }) => {
   const handleAnalysis = async () => {
     setAnalyzing(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/recommendation', {
+      const response = await fetch('https://riodino14-edupulse-backend.hf.space//api/recommendation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

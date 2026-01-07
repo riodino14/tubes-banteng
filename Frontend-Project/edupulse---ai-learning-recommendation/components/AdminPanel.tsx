@@ -52,12 +52,12 @@ const AdminPanel: React.FC = () => {
   // --- FETCH DATA AWAL ---
   useEffect(() => {
     // 1. Ambil Summary Global
-    fetch('http://127.0.0.1:8000/api/admin/summary')
+    fetch('https://riodino14-edupulse-backend.hf.space//api/admin/summary')
       .then(res => res.json())
       .then(data => setSummary(data));
 
     // 2. Ambil Daftar Kelas
-    fetch('http://127.0.0.1:8000/api/admin/classes')
+    fetch('https://riodino14-edupulse-backend.hf.space//api/admin/classes')
       .then(res => res.json())
       .then(data => {
         setClasses(data);
@@ -74,7 +74,7 @@ const AdminPanel: React.FC = () => {
     setCurrentPage(1); // Reset ke halaman 1
 
     // Fetch mahasiswa di kelas ini
-    fetch(`http://127.0.0.1:8000/api/admin/students_by_class?class_id=${cls.class_id}`)
+    fetch(`https://riodino14-edupulse-backend.hf.space//api/admin/students_by_class?class_id=${cls.class_id}`)
       .then(res => res.json())
       .then(data => {
         setStudents(data);
@@ -87,7 +87,7 @@ const AdminPanel: React.FC = () => {
     setFullStudentDetail(null);
     setViewMode('detail');
     
-    fetch(`http://127.0.0.1:8000/api/student/${id}`)
+    fetch(`https://riodino14-edupulse-backend.hf.space//api/student/${id}`)
       .then(res => res.json())
       .then(data => {
         const fullData: StudentData = {
@@ -104,7 +104,7 @@ const AdminPanel: React.FC = () => {
   const handleResetPassword = async (id: number) => {
     if (confirm(`Yakin ingin mereset password Mahasiswa ${id} menjadi 'mhs123'?`)) {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/admin/reset-password/${id}`, {
+        const res = await fetch(`https://riodino14-edupulse-backend.hf.space//api/admin/reset-password/${id}`, {
           method: 'PUT'
         });
 
