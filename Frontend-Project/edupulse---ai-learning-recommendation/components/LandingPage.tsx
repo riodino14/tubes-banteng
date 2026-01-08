@@ -154,24 +154,40 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
             {/* GANTI NAMA & ROLE DI SINI SESUAI ANGGOTA KELOMPOK */}
             <TeamMember 
               name="Ketua Tim" 
-              role="Project Manager" 
-              imgUrl="https://ui-avatars.com/api/?name=Ketua+Tim&background=ef4444&color=fff&size=128" 
+              role="Riodino" 
+              imgUrl="https://drive.google.com/file/d/11EatILpfC787EcG5fVpsf418q_RrmOWM/view?usp=sharing" 
             />
              <TeamMember 
               name="Anggota 1" 
-              role="Data Engineer" 
-              imgUrl="https://ui-avatars.com/api/?name=Anggota+1&background=0D8ABC&color=fff&size=128" 
+              role="M. Adlan" 
+              imgUrl="https://drive.google.com/file/d/1zu-_kS-Lh9CXkZey56Xs42h8bSU9Sbhv/view?usp=sharing" 
             />
              <TeamMember 
               name="Anggota 2" 
-              role="Machine Learning" 
+              role="Baihaqi B." 
               imgUrl="https://ui-avatars.com/api/?name=Anggota+2&background=8247E5&color=fff&size=128" 
             />
              <TeamMember 
               name="Anggota 3" 
-              role="Full Stack Developer" 
+              role="Doddy Adi" 
+              imgUrl="https://drive.google.com/file/d/1rduHSNw2IZazzuibdiTT70f5KJVR-hU4/view?usp=sharing" 
+            />
+             <TeamMember 
+              name="Anggota 4" 
+              role="Faiq M." 
+              imgUrl="https://drive.google.com/file/d/1KrQmo9IjoMDh6GGs-k_y06jXmzr_rBLA/view?usp=sharing" 
+            />
+             <TeamMember 
+              name="Anggota 5" 
+              role="Bagas" 
               imgUrl="https://ui-avatars.com/api/?name=Anggota+3&background=F59E0B&color=fff&size=128" 
             />
+             <TeamMember 
+              name="Anggota 6" 
+              role="Fauzan" 
+              imgUrl="https://drive.google.com/file/d/1CCdrce-Co3l_HEvtBgWsjyEANi8mIlb_/view?usp=sharing" 
+            />
+            
           </div>
         </div>
       </section>
