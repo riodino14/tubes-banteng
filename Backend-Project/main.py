@@ -1,3 +1,4 @@
+from knowledge_base import get_curated_videos # <-- Tambahkan ini
 from fastapi import FastAPI, HTTPException, Query, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -418,6 +419,7 @@ class RecommendationRequest(BaseModel):
 #     }
 
 # --- SUPER AI V3 (REPLACE BAGIAN INI SAJA) ---
+# --- UPDATE DI MAIN.PY: REKOMENDASI HYBRID ---
 @app.post("/api/recommendation")
 def get_ai_recommendation(req: RecommendationRequest):
     # 1. Identifikasi User
@@ -429,120 +431,89 @@ def get_ai_recommendation(req: RecommendationRequest):
     cluster_type = cluster_labels.get(cluster_id, "Unknown")
     engagement = int(row["engagement_score"])
     
-    # 2. LOGIC JADWAL BELAJAR REAL (MODE)
-    optimal_time = "Pagi Hari (08:00 - 10:00)"
+    # 2. Logic Jadwal
+    optimal_time = "Pagi Hari (08:00)"
     user_logs = logs_df[logs_df['userid'] == req.user_id]
-    
     if not user_logs.empty:
-        hours = user_logs['hour'].dropna().astype(int)
-        if len(hours) > 0:
-            most_common_hour = hours.mode()[0]
-            if 5 <= most_common_hour < 12: optimal_time = f"Pagi Hari (Sekitar jam {most_common_hour}:00)"
-            elif 12 <= most_common_hour < 15: optimal_time = f"Siang Hari (Sekitar jam {most_common_hour}:00)"
-            elif 15 <= most_common_hour < 18: optimal_time = f"Sore Hari (Sekitar jam {most_common_hour}:00)"
-            else: optimal_time = f"Malam Hari (Sekitar jam {most_common_hour}:00)"
-    
-    # 3. DETEKSI TOPIK SPESIFIK & SKORNYA
-    weak_subjects = [] 
-    
+        h = user_logs['hour'].dropna().mode()
+        if not h.empty:
+            hour = int(h[0])
+            period = "Malam" if hour >= 18 else "Sore" if hour >= 15 else "Siang" if hour >= 12 else "Pagi"
+            optimal_time = f"{period} Hari (Sekitar jam {hour}:00)"
+
+    # 3. Deteksi Topik Lemah
+    weak_subjects = []
     student_scores = score_df[score_df["userid"] == req.user_id]
     if not student_scores.empty:
-        # Filter nilai > 0 tapi rendah, ambil 2 terbawah
-        valid_scores = student_scores[student_scores['final_quiz_grade'] > 0].copy()
-        
-        if not valid_scores.empty:
-            valid_scores = valid_scores.sort_values('final_quiz_grade').head(2) 
-            
-            for _, bad_quiz in valid_scores.iterrows():
+        valid = student_scores[student_scores['final_quiz_grade'] > 0].copy()
+        if not valid.empty:
+            valid = valid.sort_values('final_quiz_grade').head(2)
+            for _, bad_quiz in valid.iterrows():
                 c_name = clean_course_name(bad_quiz['coursefullname'])
                 raw_topic = extract_topic_from_quiz(bad_quiz['quizname'])
                 score = fix_grade_value(bad_quiz['final_quiz_grade'])
                 search_query = generate_search_query(c_name, raw_topic)
-                
-                weak_subjects.append({
-                    "course": c_name,
-                    "topic": raw_topic,
-                    "score": score,
-                    "search_query": search_query
-                })
+                weak_subjects.append({"course": c_name, "topic": raw_topic, "score": score, "search_query": search_query})
 
-    # Default jika kosong
-    if not weak_subjects:
+    if not weak_subjects: 
         weak_subjects.append({"course": "Umum", "topic": "Materi Dasar", "score": 0, "search_query": "Materi Dasar Informatika"})
 
-    # 4. PEER & MENTOR
-    peer_list = []
-    cluster_peers = user_df[user_df['cluster'] == int(row["cluster"])]
-    if len(cluster_peers) > 1:
-         # Sample 3 teman, pastikan tidak mengambil diri sendiri
-         samples = cluster_peers[cluster_peers['userid'] != req.user_id].sample(min(3, len(cluster_peers)-1))
-         peer_list = [f"Mahasiswa {uid}" for uid in samples['userid'].values]
-
+    # 4. Peer & Mentor
+    peer_list = [f"Mahasiswa {uid}" for uid in user_df[user_df['cluster'] == int(row["cluster"])].sample(min(3, len(user_df)))['userid'].values if uid != req.user_id]
+    
     mentor_name = "Belum Tersedia"
-    # Cari mentor berdasarkan matkul terlemah pertama
     weakest_course_id = student_scores.sort_values('final_quiz_grade').iloc[0]['courseshortname'] if not student_scores.empty else ""
-    
     if weakest_course_id:
-        potential_mentors = score_df[
-            (score_df['courseshortname'] == weakest_course_id) & 
-            (score_df['final_quiz_grade'] > 85)
-        ]['userid'].unique()
-        
-        mentor_list = potential_mentors.tolist() 
-        if len(mentor_list) > 0:
-            mentor_id = random.choice(mentor_list)
-            mentor_name = f"Mahasiswa {mentor_id} (Expert)"
+        potential = score_df[(score_df['courseshortname'] == weakest_course_id) & (score_df['final_quiz_grade'] > 85)]['userid'].unique()
+        if len(potential) > 0: 
+            mentor_name = f"Mahasiswa {random.choice(potential.tolist())} (Expert)"
 
-    # 5. MENYUSUN PESAN TIPS DENGAN NILAI (BAGIAN YANG DIUPDATE)
-    # Format: "Topik A (Nilai: 50), Topik B (Nilai: 60)"
-    weak_list_text = ", ".join([f"{x['topic']} (Nilai: {x['score']})" for x in weak_subjects])
-    
-    # Format untuk Kotak Merah Fokus Utama
-    top_weak = weak_subjects[0]
-    focus_text = f"{top_weak['topic']} (Skor: {top_weak['score']})"
-
-    # 6. LOGIC CONTENT (Generate Link)
+    # 5. MATERI REKOMENDASI (HYBRID: CURATED + SEARCH)
     style = req.learning_style.title()
-    
     materials = []
+    
     for item in weak_subjects:
+        # A. Cek Video Terkurasi (Dari File knowledge_base.py)
+        # Fungsi ini akan mengembalikan List Video Grid jika ada di database
+        curated_vids = get_curated_videos(item['topic'])
+        materials.extend(curated_vids)
+        
+        # B. Selalu Tambahkan Smart Search Link (Baseline)
         if style == "Visual":
             url = f"https://www.youtube.com/results?search_query=Tutorial+{item['search_query'].replace(' ', '+')}"
-            icon_type = "Video"
+            icon_type = "Search Video"
         elif style == "Auditory":
             url = f"https://www.youtube.com/results?search_query=Penjelasan+{item['search_query'].replace(' ', '+')}"
-            icon_type = "Podcast/Audio"
+            icon_type = "Search Podcast"
         else: 
             url = f"https://www.google.com/search?q=Latihan+Soal+{item['search_query'].replace(' ', '+')}+filetype:pdf"
-            icon_type = "Latihan/PDF"
+            icon_type = "Search PDF"
 
         materials.append({
-            "title": f"Pelajari: {item['course']} - {item['topic']}",
-            "type": icon_type,
+            "title": f"Cari Lebih Lanjut: {item['topic']}",
+            "type": "Search_Link", # Tipe ini dibaca Frontend sebagai List biasa
             "url": url
         })
 
     # Prediksi
     current_avg = sum([x['score'] for x in weak_subjects]) / len(weak_subjects)
-    pred_score = min(100, current_avg + 10)
+    
+    # Format Teks Tips
+    weak_list_text = ", ".join([f"{x['topic']} (Nilai: {x['score']})" for x in weak_subjects])
+    top_weak = weak_subjects[0]
 
     return {
-        "status": cluster_type,
-        "match_percentage": 85,
-        "strategy": "Targeted Improvement",
+        "status": cluster_type, 
+        "match_percentage": 85, 
+        "strategy": "Targeted Improvement", 
         "materials": materials,
-        # UPDATE: Tips sekarang menampilkan angka nilai
         "tips": f"Perhatian! Terdeteksi nilai rendah pada: {weak_list_text}. Segera pelajari materi di bawah.",
-        # UPDATE: Fokus utama menampilkan angka nilai
-        "weak_subject": focus_text, 
-        "peer_group": peer_list,
+        "weak_subject": f"{top_weak['topic']} (Skor: {top_weak['score']})", 
+        "peer_group": peer_list, 
         "mentor": mentor_name,
-        "predicted_score": round(pred_score, 1),
+        "predicted_score": min(100, current_avg + 10), 
         "optimal_time": optimal_time
     }
-
-
-
 # Model data untuk request chat
 class ChatRequest(BaseModel):
     user_id: int
