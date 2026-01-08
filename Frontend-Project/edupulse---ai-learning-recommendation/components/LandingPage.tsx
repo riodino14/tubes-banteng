@@ -160,7 +160,7 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
              <TeamMember 
               name="Anggota 1" 
               role="M. Adlan" 
-              imgUrl="/asetprofil/Adlan.jpg" 
+              imgUrl="asetprofil\Adlan.jpg" 
             />
              <TeamMember 
               name="Anggota 2" 
