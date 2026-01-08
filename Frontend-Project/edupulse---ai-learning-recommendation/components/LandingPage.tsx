@@ -155,12 +155,12 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
             <TeamMember 
               name="Ketua Tim" 
               role="Riodino" 
-              imgUrl="https://drive.google.com/file/d/11EatILpfC787EcG5fVpsf418q_RrmOWM/view?usp=sharing" 
+              imgUrl="https://ui-avatars.com/api/?name=Ketua+tim&background=0D8ABC&color=fff&size=128" 
             />
              <TeamMember 
               name="Anggota 1" 
               role="M. Adlan" 
-              imgUrl="asetprofil\Adlan.jpg" 
+              imgUrl="https://ui-avatars.com/api/?name=Anggota+1&background=0D8ABC&color=fff&size=128" 
             />
              <TeamMember 
               name="Anggota 2" 
@@ -170,22 +170,22 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
              <TeamMember 
               name="Anggota 3" 
               role="Doddy Adi" 
-              imgUrl="https://drive.google.com/file/d/1rduHSNw2IZazzuibdiTT70f5KJVR-hU4/view?usp=sharing" 
+              imgUrl="https://ui-avatars.com/api/?name=Anggota+3&background=0D8ABC&color=fff&size=128" 
             />
              <TeamMember 
               name="Anggota 4" 
               role="Faiq M." 
-              imgUrl="https://drive.google.com/file/d/1KrQmo9IjoMDh6GGs-k_y06jXmzr_rBLA/view?usp=sharing" 
+              imgUrl="https://ui-avatars.com/api/?name=Anggota+4&background=0D8ABC&color=fff&size=128" 
             />
              <TeamMember 
               name="Anggota 5" 
               role="Bagas" 
-              imgUrl="https://ui-avatars.com/api/?name=Anggota+3&background=F59E0B&color=fff&size=128" 
+              imgUrl="https://ui-avatars.com/api/?name=Anggota+5&background=0D8ABC&color=fff&size=128" 
             />
              <TeamMember 
               name="Anggota 6" 
               role="Fauzan" 
-              imgUrl="https://drive.google.com/file/d/1CCdrce-Co3l_HEvtBgWsjyEANi8mIlb_/view?usp=sharing" 
+              imgUrl="https://ui-avatars.com/api/?name=Anggota+6&background=0D8ABC&color=fff&size=128" 
             />
             
           </div>
