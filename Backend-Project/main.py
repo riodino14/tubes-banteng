@@ -31,7 +31,7 @@ if not api_key:
 genai.configure(api_key=api_key)
 
 # Setup Model - GANTI KE 1.5 FLASH (Versi Paling Stabil di Cloud)
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 # 1. SETUP
 app = FastAPI(title="EduPulse API", version="13.0 - Smart Context")
