@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, BrainCircuit, TrendingUp, Users, ArrowRight } from 'lucide-react';
+import { BookOpen, BrainCircuit, TrendingUp, Users, ArrowRight, Github, Linkedin, Code } from 'lucide-react';
 
 interface LandingProps {
   onLoginClick: () => void;
@@ -29,7 +29,7 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
           </div>
           <button 
             onClick={onLoginClick}
-            className="text-sm font-medium text-slate-600 hover:text-red-600 transition-colors px-4 py-2"
+            className="text-sm font-medium text-slate-600 hover:text-red-600 transition-colors px-4 py-2 border border-slate-200 rounded-lg hover:border-red-200"
           >
             Masuk / Login
           </button>
@@ -41,9 +41,9 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 bg-red-50 text-red-600 px-4 py-1.5 rounded-full text-sm font-bold border border-red-100">
+              <div className="inline-flex items-center gap-2 bg-red-50 text-red-600 px-4 py-1.5 rounded-full text-sm font-bold border border-red-100 animate-fade-in-up">
                 <BrainCircuit className="w-4 h-4" />
-                <span>Powered by Machine Learning</span>
+                <span>Powered by Machine Learning & Gemini AI</span>
               </div>
               <h1 className="text-5xl lg:text-6xl font-bold leading-tight text-slate-900">
                 Optimalkan Potensi Akademik Anda dengan <span className="text-red-600">AI</span>.
@@ -59,7 +59,7 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
                   Mulai Sekarang <ArrowRight className="w-5 h-5" />
                 </button>
                 
-                {/* --- TOMBOL PELAJARI SELENGKAPNYA (SUDAH AKTIF) --- */}
+                {/* Tombol Scroll Aktif */}
                 <button 
                   onClick={handleScrollToFeatures}
                   className="px-8 py-4 rounded-xl font-bold text-slate-600 hover:bg-white hover:shadow-md transition-all border border-transparent hover:border-slate-200"
@@ -109,13 +109,13 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
         </div>
       </header>
 
-      {/* --- FEATURES SECTION (DITAMBAHKAN ID="features") --- */}
+      {/* --- FEATURES SECTION --- */}
       <section id="features" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">Kenapa EduPulse?</h2>
             <p className="text-slate-500">
-              Sistem kami tidak hanya mencatat nilai, tapi memahami pola belajar Anda untuk memberikan solusi konkrit.
+              Sistem kami tidak hanya mencatat nilai, tapi memahami pola belajar Anda untuk memberikan solusi konkrit menggunakan teknologi terkini.
             </p>
           </div>
 
@@ -123,17 +123,54 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
             <FeatureCard 
               icon={BrainCircuit}
               title="Analisis Gaya Belajar"
-              desc="Apakah Anda tipe Visual atau Auditory? AI menyesuaikan rekomendasi materi (Video/Podcast) sesuai preferensi Anda."
+              desc="Apakah Anda tipe Visual atau Auditory? AI menyesuaikan rekomendasi materi (Video/Podcast) sesuai preferensi unik Anda."
             />
             <FeatureCard 
               icon={TrendingUp}
               title="Prediksi & Intervensi"
-              desc="Deteksi dini risiko ketertinggalan. Dapatkan peringatan dan strategi perbaikan sebelum terlambat."
+              desc="Deteksi dini risiko ketertinggalan. Dapatkan peringatan dan strategi perbaikan sebelum nilai akhir keluar."
             />
             <FeatureCard 
               icon={Users}
               title="Smart Peer Grouping"
-              desc="Temukan teman belajar yang satu frekuensi (Cluster) atau Mentor sebaya untuk meningkatkan motivasi."
+              desc="Temukan teman belajar yang satu frekuensi (Cluster) atau Mentor sebaya untuk meningkatkan motivasi belajar."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* --- MEET THE TEAM (ABOUT US) --- */}
+      <section className="py-24 bg-slate-50 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <div className="inline-block p-3 rounded-full bg-red-100 text-red-600 mb-4">
+                <Users className="w-6 h-6" />
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Tim Pengembang</h2>
+            <p className="text-slate-500">Mahasiswa di balik kecerdasan EduPulse.</p>
+          </div>
+          
+          <div className="grid md:grid-cols-4 gap-8 justify-center">
+            {/* GANTI NAMA & ROLE DI SINI SESUAI ANGGOTA KELOMPOK */}
+            <TeamMember 
+              name="Ketua Tim" 
+              role="Project Manager" 
+              imgUrl="https://ui-avatars.com/api/?name=Ketua+Tim&background=ef4444&color=fff&size=128" 
+            />
+             <TeamMember 
+              name="Anggota 1" 
+              role="Data Engineer" 
+              imgUrl="https://ui-avatars.com/api/?name=Anggota+1&background=0D8ABC&color=fff&size=128" 
+            />
+             <TeamMember 
+              name="Anggota 2" 
+              role="Machine Learning" 
+              imgUrl="https://ui-avatars.com/api/?name=Anggota+2&background=8247E5&color=fff&size=128" 
+            />
+             <TeamMember 
+              name="Anggota 3" 
+              role="Full Stack Developer" 
+              imgUrl="https://ui-avatars.com/api/?name=Anggota+3&background=F59E0B&color=fff&size=128" 
             />
           </div>
         </div>
@@ -146,22 +183,40 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
             <BookOpen className="text-white w-6 h-6" />
             <span className="text-xl font-bold text-white">EduPulse</span>
           </div>
-          <p className="text-sm">© 2025 Computing Project. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <p className="text-sm">© 2025 Computing Project.</p>
+            <div className="flex gap-4">
+                <Github className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
+                <Linkedin className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
+            </div>
+          </div>
         </div>
       </footer>
     </div>
   );
 };
 
+// Sub-Component untuk Kartu Fitur
 const FeatureCard = ({ icon: Icon, title, desc }: any) => (
-  <div className="p-8 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-white hover:shadow-xl transition-all duration-300 group">
-    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform">
-      <Icon className="w-6 h-6 text-red-600" />
+  <div className="p-8 rounded-2xl border border-slate-100 bg-white hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
+    <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center shadow-sm mb-6 group-hover:bg-red-600 transition-colors duration-300">
+      <Icon className="w-6 h-6 text-red-600 group-hover:text-white transition-colors duration-300" />
     </div>
     <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
     <p className="text-slate-600 leading-relaxed text-sm">
       {desc}
     </p>
+  </div>
+);
+
+// Sub-Component untuk Anggota Tim
+const TeamMember = ({ name, role, imgUrl }: any) => (
+  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-center hover:shadow-lg transition-all duration-300 group">
+    <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-slate-50 shadow-inner group-hover:border-red-100 transition-colors">
+      <img src={imgUrl} alt={name} className="w-full h-full object-cover" />
+    </div>
+    <h4 className="font-bold text-lg text-slate-900">{name}</h4>
+    <p className="text-xs text-red-600 font-bold uppercase tracking-wider mt-1">{role}</p>
   </div>
 );
 

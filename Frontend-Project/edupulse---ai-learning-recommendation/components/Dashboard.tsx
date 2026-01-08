@@ -3,7 +3,8 @@ import { StudentData, QuizDetail } from '../types';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
-import { TrendingUp, Award, Clock, AlertCircle, ChevronDown, Info} from 'lucide-react';
+import { TrendingUp, Award, Clock, AlertCircle, ChevronDown } from 'lucide-react';
+import InfoTooltip from './InfoTooltip'; // Import Tooltip Component
 
 interface DashboardProps {
   user: StudentData;
@@ -18,24 +19,20 @@ const Dashboard: React.FC<DashboardProps> = ({ user, defaultClassId }) => {
   // 1. Set Default Selection
   useEffect(() => {
     if (user.courses.length > 0) {
-      // Prioritaskan kelas yang diklik dari Admin Panel
       if (defaultClassId) {
         setSelectedClassId(defaultClassId);
       } else {
-        // Default ke matkul pertama
         setSelectedClassId(user.courses[0].class_id);
       }
     }
   }, [user, defaultClassId]);
 
-  // 2. Fetch Data Kuis (Pake ID Kelas, Bukan Nama)
-  // 2. Fetch Data Kuis saat Dropdown Berubah
+  // 2. Fetch Data Kuis
   useEffect(() => {
     if (!selectedClassId) return;
 
     setLoadingQuiz(true);
-    
-    // PERBAIKAN: Gunakan encodeURIComponent untuk keamanan URL
+    // Gunakan URL Hugging Face
     const url = `https://riodino14-edupulse-backend.hf.space/api/student/quiz_detail?user_id=${user.user_id}&class_id=${encodeURIComponent(selectedClassId)}`;
     
     fetch(url)
@@ -55,30 +52,22 @@ const Dashboard: React.FC<DashboardProps> = ({ user, defaultClassId }) => {
   
   const comparisonData = user.courses.map(c => ({
     name: c.subject.length > 15 ? c.subject.substring(0, 15) + '...' : c.subject,
-    nilai: c.score, // Nilai ini sekarang sudah di-fix backend (max 100)
+    nilai: c.score,
     full: c.subject
   }));
 
-  const StatCard = ({ icon: Icon, label, value, color, tooltip }: any) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col relative overflow-visible">
+  // --- STAT CARD DENGAN TOOLTIP COMPONENT ---
+  const StatCard = ({ icon: Icon, label, value, color, tooltipText }: any) => (
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className={`p-2 rounded-lg ${color}`}>
             <Icon className="w-5 h-5 text-white" />
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center">
             <span className="text-slate-500 text-sm font-medium">{label}</span>
-            {tooltip && (
-              <div className="group relative">
-                <Info className="w-4 h-4 text-slate-400 cursor-help hover:text-slate-600" />
-                {/* Tooltip Bubble */}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[10px] rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center">
-                  {tooltip}
-                  {/* Panah Kecil Bawah */}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
-                </div>
-              </div>
-            )}
+            {/* Gunakan InfoTooltip di sini */}
+            {tooltipText && <InfoTooltip text={tooltipText} />}
           </div>
         </div>
       </div>
@@ -95,37 +84,29 @@ const Dashboard: React.FC<DashboardProps> = ({ user, defaultClassId }) => {
         </p>
       </div>
 
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard icon={TrendingUp} label="IPK (Estimasi)" value={user.gpa} color="bg-emerald-500" />
-        <StatCard icon={Award} label="Rata-rata Global" value={`${user.average_score}%`} color="bg-blue-500" />
-        <StatCard icon={Clock} label="Skor Engagement" value={user.engagement_score} color="bg-purple-500" />
-        <StatCard icon={AlertCircle} label="Kategori Performa" value={user.performance_category} color={user.performance_category === 'Low' ? 'bg-red-500' : 'bg-amber-500'} />
-      </div> */}
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
-          icon={TrendingUp} 
-          label="IPK (Estimasi)" 
-          value={user.gpa} 
-          color="bg-emerald-500" 
-          tooltip="Dihitung menggunakan konversi linear: (Rata-rata Nilai / 25). Bukan transkrip resmi."
+          icon={TrendingUp} label="IPK (Estimasi)" value={user.gpa} color="bg-emerald-500" 
+          tooltipText="Dihitung menggunakan konversi linear: (Rata-rata Global / 25). Bukan transkrip resmi."
         />
         <StatCard 
-          icon={Award} 
-          label="Rata-rata Global" 
-          value={`${user.average_score}%`} 
-          color="bg-blue-500"
-          tooltip="Rata-rata gabungan seluruh nilai tugas dan kuis yang telah dikerjakan."
+          icon={Award} label="Rata-rata Global" value={`${user.average_score}%`} color="bg-blue-500"
+          tooltipText="Rata-rata gabungan seluruh nilai tugas dan kuis yang telah dikerjakan."
         />
-        <StatCard icon={Clock} label="Skor Engagement" value={user.engagement_score} color="bg-purple-500" />
-        <StatCard icon={AlertCircle} label="Kategori Performa" value={user.performance_category} color={user.performance_category === 'Low' ? 'bg-red-500' : 'bg-amber-500'} />
+        <StatCard 
+          icon={Clock} label="Skor Engagement" value={user.engagement_score} color="bg-purple-500" 
+          tooltipText="Total frekuensi interaksi (klik/view) Anda di LMS yang terekam dalam Logs."
+        />
+        <StatCard 
+          icon={AlertCircle} label="Kategori Performa" value={user.performance_category} color={user.performance_category === 'Low' ? 'bg-red-500' : 'bg-amber-500'} 
+          tooltipText="High (>80), Medium (60-80), Low (<60). Digunakan sebagai sistem peringatan dini."
+        />
       </div>
 
       {/* CHART KUIS */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <h2 className="text-lg font-bold text-slate-800">Riwayat Nilai Kuis & Tugas</h2>
-            
             <div className="relative">
                 <select 
                     value={selectedClassId}
@@ -133,9 +114,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, defaultClassId }) => {
                     className="appearance-none bg-slate-50 border border-slate-300 text-slate-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-slate-500 min-w-[200px]"
                 >
                     {user.courses.map((c, idx) => (
-                        <option key={idx} value={c.class_id}>
-                          {c.subject} {/* Teks Nama, Value ID */}
-                        </option>
+                        <option key={idx} value={c.class_id}>{c.subject}</option>
                     ))}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-700">
@@ -149,13 +128,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, defaultClassId }) => {
                 <div className="h-full flex items-center justify-center text-slate-400">Memuat data kuis...</div>
             ) : quizData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={quizData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                    <BarChart data={quizData} margin={{ top: 20, right: 30, left: 0, bottom: 50 }}> {/* Bottom ditambah biar label miring muat */}
                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
                         <XAxis 
-                            dataKey="quiz_name" // Backend sekarang mengirim "Q1: Relasi" di field ini
+                            dataKey="quiz_name" 
                             tick={{ fontSize: 10, fill: '#64748b' }} 
-                            interval={0} // Tampilkan semua label
-                            angle={-45}  // Miringkan sedikit biar muat
+                            interval={0} 
+                            angle={-45}  
                             textAnchor="end"
                             height={60}
                         />
@@ -176,7 +155,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, defaultClassId }) => {
         </div>
       </div>
 
-      {/* CHART PERBANDINGAN */}
+      {/* CHART PERBANDINGAN & PROFIL */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
           <h2 className="text-lg font-bold text-slate-800 mb-6">Perbandingan Rata-rata Matkul</h2>
@@ -203,7 +182,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, defaultClassId }) => {
               </span>
             </div>
             <div>
-              <p className="text-sm text-slate-500 mb-2">Klaster ML (Segmentasi)</p>
+              <p className="text-sm text-slate-500 mb-2 flex items-center">
+                Klaster ML (Segmentasi)
+                <InfoTooltip text="Hasil K-Means Clustering berdasarkan Nilai & Engagement." />
+              </p>
               <span className={`px-3 py-1 rounded-md text-xs font-bold ${user.cluster_id === 0 ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600'}`}>
                   Cluster ID: {user.cluster_id}
               </span>
