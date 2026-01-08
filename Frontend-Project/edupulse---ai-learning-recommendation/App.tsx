@@ -30,7 +30,7 @@ const App: React.FC = () => {
       } else if (storedRole === 'student' && storedUid) {
         try {
           // Fetch ulang data user agar fresh
-          const response = await fetch(`http://127.0.0.1:8000/api/student/${storedUid}`);
+          const response = await fetch(`https://riodino14-edupulse-backend.hf.spaceapi/student/${storedUid}`);
           if (response.ok) {
             const data = await response.json();
             const fullUserData: StudentData = {
@@ -64,7 +64,7 @@ const App: React.FC = () => {
       formData.append('username', userIdInput);
       formData.append('password', passwordInput);
       
-      const tokenRes = await fetch('http://127.0.0.1:8000/token', {
+      const tokenRes = await fetch('https://riodino14-edupulse-backend.hf.spacetoken', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData
@@ -72,7 +72,7 @@ const App: React.FC = () => {
 
       if (!tokenRes.ok) throw new Error("Login Gagal! Periksa ID atau Password.");
       
-      const response = await fetch(`http://127.0.0.1:8000/api/student/${userIdInput}`);
+      const response = await fetch(`https://riodino14-edupulse-backend.hf.spaceapi/student/${userIdInput}`);
       if (!response.ok) throw new Error("Gagal mengambil data profil.");
       const data = await response.json();
 
@@ -105,7 +105,7 @@ const App: React.FC = () => {
         const formData = new URLSearchParams();
         formData.append('username', 'admin');
         formData.append('password', passwordInput);
-        const tokenRes = await fetch('http://127.0.0.1:8000/token', {
+        const tokenRes = await fetch('https://riodino14-edupulse-backend.hf.spacetoken', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: formData
