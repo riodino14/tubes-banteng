@@ -160,7 +160,7 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
              <TeamMember 
               name="Anggota 1" 
               role="M. Adlan" 
-              imgUrl="https://ui-avatars.com/api/?name=Anggota+1&background=0D8ABC&color=fff&size=128" 
+              imgUrl="assets/foto-profil/Adlan.jpg" 
             />
              <TeamMember 
               name="Anggota 2" 
@@ -170,12 +170,12 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
              <TeamMember 
               name="Anggota 3" 
               role="Doddy Adi" 
-              imgUrl="https://ui-avatars.com/api/?name=Anggota+3&background=0D8ABC&color=fff&size=128" 
+              imgUrl="assets/foto-profil/Doddy.jpg" 
             />
              <TeamMember 
               name="Anggota 4" 
               role="Faiq M." 
-              imgUrl="https://ui-avatars.com/api/?name=Anggota+4&background=0D8ABC&color=fff&size=128" 
+              imgUrl="assets/foto-profil/Faiq.jpg" 
             />
              <TeamMember 
               name="Anggota 5" 
@@ -185,7 +185,7 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
              <TeamMember 
               name="Anggota 6" 
               role="Fauzan" 
-              imgUrl="https://ui-avatars.com/api/?name=Anggota+6&background=0D8ABC&color=fff&size=128" 
+              imgUrl="assets/foto-profil/Fauzan.jpg" 
             />
             
           </div>
