@@ -155,7 +155,7 @@ const LandingPage: React.FC<LandingProps> = ({ onLoginClick }) => {
             <TeamMember 
               name="Ketua Tim" 
               role="Riodino" 
-              imgUrl="https://ui-avatars.com/api/?name=Ketua+tim&background=0D8ABC&color=fff&size=128" 
+              imgUrl="assets/foto-profil/Rio.jpg" 
             />
              <TeamMember 
               name="Anggota 1" 
